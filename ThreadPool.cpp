@@ -22,7 +22,10 @@ ThreadPool::ThreadPool(int workercnt_):
 						list[i].front()();
 						list[i].pop_front();
 						taskcnt--;
-					}else break; //exit thread
+					}else {
+						workercnt--;
+						break; //exit thread
+					}
 				} catch(const std::system_error &e) {
 					if(e.code() == std::error_code(EINTR, std::system_category()))
 						break; //break for block io task
@@ -50,8 +53,11 @@ void ThreadPool::setcleaner(bool soft) {
 }
 ThreadPool::~ThreadPool() {
 	taskcnt.store(-1);
-	for(int i=0;i<workercnt;i++)
-		cv_jobaddvec[i].notify_one();
+	int maxwokercnt=workercnt.load();
+	while(workercnt.load()){
+		for(int i=0;i<maxwokercnt;i++)
+			cv_jobaddvec[i].notify_one();
+	}
 	for(auto &it : worker) {
 		cleaner(it);
 	}

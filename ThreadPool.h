@@ -17,7 +17,7 @@ public:
 	void setcleaner(bool soft = true);
 	~ThreadPool();
 private:
-	int workercnt;
+	std::atomic<int> workercnt;
 	std::vector<std::mutex> mvec;
 	std::list<std::thread> worker;
 	std::vector<std::condition_variable> cv_jobaddvec;
