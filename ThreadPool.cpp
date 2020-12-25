@@ -26,11 +26,7 @@ ThreadPool::ThreadPool(int workercnt_):
 						workercnt--;
 						break; //exit thread
 					}
-				} catch(const std::system_error &e) {
-					if(e.code() == std::error_code(EINTR, std::system_category()))
-						break; //break for block io task
-					else throw std::current_exception();
-				} catch(...) {
+				}catch(...) {
 					throw std::current_exception();
 				}
 			} while(true);
